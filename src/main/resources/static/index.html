@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <h1>Blog</h1>
+    <form id="blog-form" action="/posts" method="post">
+      <input type="text" name="title"/>
+      <textarea name="body"></textarea>
+      <button type="submit">Postar</button>
+    </form>
+    <script>
+    $("#blog-form").submit(function(e) {
+        e.preventDefault();
+        var data = {};
+        var Form = this;
+        $.each(this.elements, function(i, v) {
+            var input = $(v);
+            data[input.attr("name")] = input.val();
+            delete data["undefined"];
+        });
+        console.log(data);
+        $.ajax({
+            cache: false,
+            url: '/posts',
+            type: "post",
+//            contentType: 'application/json',
+            dataType: "json",
+            data: JSON.stringify(data),
+            context: Form,
+            success: function () {
+                $(this)[0].reset();
+                var msgSuccess = $("#msg-success");
+                msgSuccess.fadeIn('slow');
+                window.setTimeout(function() {
+                    msgSuccess.fadeOut('slow');
+                }, 3000);
+            },
+            error: function (xhr, status, error) {
+                var $msgDanger = $("#msg-danger");
+                $msgDanger.html(JSON.parse(xhr.responseText).message);
+                $msgDanger.fadeIn('fast');
+                window.setTimeout(function() {
+                    $("#msg-danger").fadeOut('slow');
+                }, 15000);
+            }
+        });
+    });
+
+    </script>
+  </body>
+</html>
